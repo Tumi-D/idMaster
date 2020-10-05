@@ -1,0 +1,20 @@
+{
+  "require": {
+    "phpmailer/phpmailer": "^6.0",
+    "illuminate/database": "^6.15",
+    "firebase/php-jwt": "^5.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Console\\": "src"
+    },
+    "classmap": [
+      "src"
+    ]
+  },
+  "require-dev": {
+    "fzaninotto/faker": "^1.9",
+    "symfony/var-dumper": "^5.0",
+    "psy/psysh": "@stable"
+  }
+}

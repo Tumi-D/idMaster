@@ -21,9 +21,9 @@ class  UsersFactory
          $users = new UserModel();
          $users->firstname =  $factory->firstName();
          $users->lastname =  $factory->lastName;
-         $users->email =  $factory->email;
-         $users->password =  md5('password');
-         $users->status = 0;
+         $users->phone =  $factory->phoneNumber;
+         $users->password = password_hash('password', PASSWORD_BCRYPT);;
+         // $users->country = 0;
          $users->save();
       }
    }

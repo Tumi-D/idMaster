@@ -1,7 +1,8 @@
 <?php
 
-// use PHPMailer\PHPMailer\PHPMailer;
-use \Firebase\JWT\JWT; 
+//use PHPMailer\PHPMailer\PHPMailer;
+use \Firebase\JWT\JWT;
+
 
 function generateApikey()
 {
@@ -90,7 +91,7 @@ $payload = array(
         //     "id" => 11,
         //     "email" => "chrisdebbrah@gmail.com"
         // )
-        $data
+ "data" =>    $data
     );
 /**
  * IMPORTANT:
@@ -105,6 +106,9 @@ $jwt = JWT::encode($payload, $key);
 
 return $jwt;
 }
+
+
+
 
 function generateOtp()
 {

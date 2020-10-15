@@ -25,7 +25,11 @@ class  Login  extends PostController
       $data = [
         "data" => [
           "token" => $jwt,
-          "user" =>$validuser
+          "user" =>[
+            "firstname" =>$user->firstname,
+            "lastname" => $user->lastname,
+            "phone" => $user->phone
+          ]
         ],
       ];
       echo json_encode($data);

@@ -1,33 +1,165 @@
 <?php
 
+use Carbon\Carbon;
+
 class  Register  extends PostController
 {
-    /**
-    * All post and put/patch/delete requests should go through here;
-    */
-
-    public function __construct(){
-         $exceptions =['phone',"otp"];
-         exclude($exceptions);
-         
+    public function __construct()
+    {
+        $exceptions = ['phone', "verifyotp", "password", "resendotp"];
+        exclude($exceptions);
     }
-     public function index(){
-        extract($_POST);
-        $rules =[
-            "phonenumber" =>"required|numeric|min:10",
-            "password" => "required|min:8"
-        ];
-        validate($rules,"json");
-    }
-
     public function phone()
     {
         extract($_POST);
-        $rules =[
-            "phonenumber" =>"required|numeric|min:10",
+        $rules = [
+            "phonenumber" => "required|numeric|min:10|unique:users",
+            "country" => "required",
         ];
-        validate($rules,"json");
-        $users = new UserModel();
-        dd($users);
+        validate($rules, "json");
+        $user = UserModel::create(["phone" => $phonenumber, "country" => $country]);
+        $this->sendOtp($user->id, $phonenumber);
+    }
+    private function sendOtp($user_id, $phonenumber)
+    {
+        $results = generateOtp($user_id);
+        $message = "Welcome to IDMEISTER your OTP is {$results["pin"]}";
+        if ($results["status"]) {
+            $header = [
+                "Content-Type:application/json",
+                "Authorization: Basic " . SMSTOKEN
+            ];
+            $formparams = [
+                "from" => COMPANYNAME,
+                "to" => $phonenumber,
+                "msg" => $message
+            ];
+            $results = performRequest('POST', 'send', $formparams, $header);
+            $results = json_decode($results);
+            if ($results->status) {
+                $data = [
+                    "status" => true,
+                    "message" => "OTP sent to number",
+                    "hint" => [
+                        "method" => "POST",
+                        "link" => URLROOT . "register/verifyotp",
+                        "params" => [
+                            "otp" => "required,minimum 6"
+                        ]
+                    ]
+                ];
+                echo json_encode($data);
+            } else {
+                simplerror("OTP was not sent to phonenumber check number and try again");
+            }
+        } else {
+            $error = [
+                "status" => false,
+                "message" => "OTP  was not sent to phone",
+                "hint" => [
+                    "method" => "POST",
+                    "link" => URLROOT . "register/resendotp",
+                    "params" => [
+                        "otp" => "required,minimum 6"
+                    ]
+                ]
+            ];
+            echo json_encode($error);
+        }
+    }
+    public  function verifyotp()
+    {
+        extract($_POST);
+        $rules = [
+            "otp" => "required|numeric|min:6"
+        ];
+        validate($rules, "json");
+        $otp = OTPModel::getOTP($otp);
+        if (empty($otp)) {
+            simplerror('Invalid Otp');
+        }
+        $currenttime = Carbon::now();
+        $expirytime = $otp->expires_at;
+        $difference = $currenttime->diffInHours($expirytime);
+        if (!$otp->confirmed && $difference < 2) {
+            $otp = new OTPModel($otp->id);
+            $otpcol = $otp->recordObject;
+            $otpcol->confirmed = true;
+            $otp->store();
+            OTPModel::deleteUnConfirmedIds($otp->recordObject->user_id);
+            $data = [
+                "status" => true,
+                "message" => "OTP verified successfully",
+                "hint" => [
+                    "method" => "POST",
+                    "link" => URLROOT . "register/password",
+                    "params" => [
+                        "otp" => "required,minimum 6",
+                        "password" => "required,minimum 8"
+                    ]
+                ]
+            ];
+            echo json_encode($data);
+        } else {
+            simplerror('Expired Otp');
+        }
+    }
+    public  function password()
+    {
+        extract($_POST);
+        $rules = [
+            'otp' => "required|min:6",
+            'password' => "required|min:8"
+        ];
+        validate($rules, 'json');
+        $otp =  OTPModel::getVerifiedOTP($otp);
+        if (!empty($otp)) {
+            $user = UserModel::find($otp->user_id);
+            if (empty($user->password)) {
+                $user->password = password_hash($password, PASSWORD_BCRYPT);;;
+                $user->save();
+                $data = [
+                    "status" => true,
+                    "message" => "Congratulations registeration complete",
+                    "hint" => [
+                        "method" => "POST",
+                        "link" => URLROOT . "register/resendotp",
+                        "params" => [
+                            "otp" => "required,minimum 6"
+                        ]
+                    ]
+                ];
+                echo json_encode($data);
+            } else {
+                simplerror('Please reset password invalid operation');
+            }
+        } else {
+            $data = [
+                "status" => false,
+                "message" => "Registeration failed",
+                "hint" => [
+                    "method" => "POST",
+                    "link" => URLROOT . "register/resendotp",
+                    "params" => [
+                        "otp" => "required,minimum 6"
+                    ]
+                ]
+            ];
+        }
+    }
+    public function resendotp()
+    {
+        extract($_POST);
+        $rules = [
+            "phonenumber" => "required|numeric|min:10",
+        ];
+        validate($rules, "json");
+        $user  = UserModel::where("phone", $phonenumber)->first();
+        if (!empty($user->password)) {
+            simplerror("Please proceed to reset password your registeration is complete.");
+        } else {
+            dd("Send Otp");
+            // $this->sendOtp($user->id, $phonenumber);
+        }
     }
 }

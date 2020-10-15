@@ -17,13 +17,12 @@ class  OtpFactory
 
    public static function run()
    {
-      $factory = Factory::create();
-      for ($i = 0; $i < self::$number; $i++) {
-         $otp = new Otp();
-         $otp->recordObject->pin = generateOtp();
-         $otp->recordObject->status = 0;
-         //Add the other record objects
-         $otp->store();
-      }
+      // $factory = Factory::create();
+      // for ($i = 0; $i < self::$number; $i++) {
+      //    $otp = new OTPModel();
+      //    $otp->recordObject->pin = generateOtp();
+      //    $otp->recordObject->status = 0;
+      //    //Add the other record objects
+      //    $otp->store();
    }
 }

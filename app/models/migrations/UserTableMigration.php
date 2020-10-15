@@ -14,7 +14,7 @@ class UserTableMigration  extends Migration
             $table->string('phone');
             $table->string('lastname')->nullable();
             $table->string('country')->nullable();
-            $table->string('password')->nulable();
+            $table->string('password')->nullable();
             $table->timestamps();
         });
     }

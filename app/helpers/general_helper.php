@@ -80,7 +80,7 @@ function generateAPIToken($data){
 $key = SECRET_KEY;
 $iat = time(); // time of token issued at
 $nbf = $iat + 10; //not before in seconds
-$exp = $iat + 60; // expire time of token in seconds
+$exp = $nbf + 60; // expire time of token in seconds
 $payload = array(
     "iss" => URLROOT,
     "aud" => URLROOT,
@@ -108,30 +108,81 @@ return $jwt;
 }
 
 
-
-
-function generateOtp()
+function addOTP($user_id,$pin)
 {
+   $otp = new OTPModel();
+   $otpcol = $otp->recordObject;
+   $otpcol->pin = $pin;
+   $otpcol->user_id = $user_id;
+   $otp->store();
+   return !$otpcol->confirmed;
+}
 
+function simplerror($message){
+    $data =[
+        'error' =>[
+            "message" => $message
+        ],
+        "company"=> COMPANYNAME
+      ];
+      echo json_encode($data);
+}
+function performRequest($method, $requestUrl, $formParams = [], $headers = [], $format = 'json',$full=false)
+{
+    if (!$full) {
+        $requestUrl = SMSAPI  . $requestUrl;
+    }
+    if ($method == "POST") {
+        $cURLConnection = curl_init($requestUrl);
+        if ($format == "form_params") {
+            $formParams = (is_array($formParams)) ? http_build_query($formParams) : $formParams;
+            curl_setopt($cURLConnection, CURLOPT_POST, 1);
+        }
+        if ($format == "json") {
+            $formParams = json_encode($formParams);
+        }
+        curl_setopt($cURLConnection, CURLOPT_POSTFIELDS, $formParams);
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($cURLConnection, CURLOPT_HTTPHEADER, $headers);
+        $apiResponse = curl_exec($cURLConnection);
+        $status = curl_getinfo($cURLConnection, CURLINFO_HTTP_CODE);
+        curl_close($cURLConnection);
+        return  $apiResponse;
+    }
+    if ($method == "GET") {
+        $cURLConnection = curl_init($requestUrl);
+        // curl_setopt($cURLConnection, CURLOPT_URL, $requestUrl);
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($cURLConnection, CURLOPT_HTTPHEADER, $headers);
+        $apiResponse = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
+        return $apiResponse;
+    }
+}
+
+function generateOtp($user_id)
+{
     $value = 0;
-
     if (function_exists('mt_rand')) {
         do {
             $value = mt_rand(100000, 999999);
         } while ($value ==  OTPModel::checkOtp($value));
-        return $value;
+        $status = addOTP($user_id,$value);
+        return ["status" => $status, "pin" => $value];
     }
     if (function_exists('rand')) {
         do {
             $value = rand(100000, 999999);
         } while ($value ==  OTPModel::checkOtp($value));
-        return $value;
+        $status = addOTP($user_id,$value);
+        return ["status" => $status, "pin" => $value];
     }
     if (function_exists('random_int')) {
         do {
             $value = random_int(100000, 999999);
         } while ($value ==  OTPModel::checkOtp($value));
-        return $value;
+        $status = addOTP($user_id,$value);
+        return["status" => $status, "pin" => $value];
     }
 }
 function exclude($exceptions)
@@ -161,6 +212,7 @@ function testinput($input)
     $input = htmlspecialchars($input);
     return $input;
 }
+
 
 function Salt()
 {

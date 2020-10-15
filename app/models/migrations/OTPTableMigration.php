@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use Illuminate\Database\Capsule\Manager as Migration;
 
 class OTPTableMigration  extends Migration
@@ -12,8 +13,8 @@ class OTPTableMigration  extends Migration
             $table->increments('id');
             $table->bigInteger('pin');
             $table->boolean('confirmed')->default(false);
-            $table->boolean('expires_at')->nullable();
-            $table->bigInteger('user_id')->nullable();
+            $table->dateTime('expires_at')->default(Carbon::now());
+            $table->bigInteger('user_id');
         });
     }
 }

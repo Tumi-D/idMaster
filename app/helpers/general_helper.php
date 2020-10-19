@@ -85,7 +85,7 @@ $payload = array(
     "iss" => URLROOT,
     "aud" => URLROOT,
     "iat" =>  $iat,
-    "nbf" => $nbf,
+    "nbf" => $iat+(60*60),
     "exp" => $exp,
         // "data" => array(
         //     "id" => 11,
@@ -118,14 +118,17 @@ function addOTP($user_id,$pin)
    return !$otpcol->confirmed;
 }
 
-function simplerror($message){
+function simplerror($message,$code=200){
+    http_response_code($code);
     $data =[
         'error' =>[
-            "message" => $message
+            "message" => $message,
+            "code" =>$code
         ],
         "company"=> COMPANYNAME
       ];
       echo json_encode($data);
+      die;
 }
 function performRequest($method, $requestUrl, $formParams = [], $headers = [], $format = 'json',$full=false)
 {

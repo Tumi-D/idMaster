@@ -42,9 +42,8 @@ function validate($rules = [], $page = '', $exceptions = [])
         // return $errors;
         $errorinfo = array(
             'error' => $errors,
-            // 'version' => "1.0.0",
-            // 'company' => "Softmasters Group",
-            "software" => COMPANYNAME
+            'code' => 422,
+            "company"=> COMPANYNAME
         );
         //Update will implement later
         if (count((array) $errors) && $page != '' && $page != "json") {
@@ -53,15 +52,16 @@ function validate($rules = [], $page = '', $exceptions = [])
             $error->view($page, $data);
             die;
         } elseif ($page != '' && $page == 'json' && count((array) $errors)) {
+            http_response_code(422);
             header('Content-Type,application/json');
             echo json_encode($errorinfo);
             die;
         } elseif ($page == '') {
             return $errors;
         }
-        // else {
-        //     return $errors;
-        // }
+        else {
+            return $errors;
+        }
     }
 }
 
@@ -368,81 +368,81 @@ function sanitizeErrors($errors)
 }
 
 
-/**
- * Sends SMS
- * @param  string phonenumber
- * @return array not yet defined
- */
-function sendSMS()
-{
-    $twilio_number = "+19093216794";
+// /**
+//  * Sends SMS
+//  * @param  string phonenumber
+//  * @return array not yet defined
+//  */
+// function sendSMS()
+// {
+//     $twilio_number = "+19093216794";
 
-    $client = new Client(TWILIO_SID, TWILIO_AUTH_TOKEN);
-    $client->messages->create(
-        // Where to send a text message (your cell phone?)
-        '+2330546945817',
-        array(
-            'from' => $twilio_number,
-            'body' => 'Simple test SMS'
-        )
-    );
-}
-
-
-function makeCall()
-{
-    $to_number = "+233546945817";
-    $twilio_number = "+19093216794";
-    $client = new Client(TWILIO_SID, TWILIO_AUTH_TOKEN);
-    $client->account->calls->create(
-        $to_number,
-        $twilio_number,
-        array(
-            "url" => "http://demo.twilio.com/docs/voice.xml"
-        )
-    );
-}
-
-function replySms()
-{
-    $to_number = "+2330546945817";
-    $twilio_number = "+19093216794";
-    // Set the content-type to XML to send back TwiML from the PHP Helper Library
-    header("content-type: text/xml");
-
-    $response = new MessagingResponse();
-    $response->message(
-        "I'm using the Twilio PHP library to respond to this SMS!"
-    );
-
-    echo $response;
-}
-function replyCall()
-{
-
-    // Set the content-type to XML to send back TwiML from the PHP Helper Library
-    header("content-type: text/xml");
-
-    // <Response>
-    // <Say>Hello</Hello>
-    // </Reponse>
-
-    // echo $response;
-}
+//     $client = new Client(TWILIO_SID, TWILIO_AUTH_TOKEN);
+//     $client->messages->create(
+//         // Where to send a text message (your cell phone?)
+//         '+2330546945817',
+//         array(
+//             'from' => $twilio_number,
+//             'body' => 'Simple test SMS'
+//         )
+//     );
+// }
 
 
-function validatePhoneNumber($phone)
-{
-    try {
-        $twilio = new Client(TWILIO_SID, TWILIO_AUTH_TOKEN);
-        $phone_number = $twilio->lookups->v1->phoneNumbers($phone)
-            ->fetch(array("countryCode" => "GH"));
-        print($phone_number->phoneNumber);
-        return $phone_number->phoneNumber;
-    } catch (Exception $e) {
-        echo "Error: " . $e->getMessage();
-    }
-}
+// function makeCall()
+// {
+//     $to_number = "+233546945817";
+//     $twilio_number = "+19093216794";
+//     $client = new Client(TWILIO_SID, TWILIO_AUTH_TOKEN);
+//     $client->account->calls->create(
+//         $to_number,
+//         $twilio_number,
+//         array(
+//             "url" => "http://demo.twilio.com/docs/voice.xml"
+//         )
+//     );
+// }
+
+// function replySms()
+// {
+//     $to_number = "+2330546945817";
+//     $twilio_number = "+19093216794";
+//     // Set the content-type to XML to send back TwiML from the PHP Helper Library
+//     header("content-type: text/xml");
+
+//     $response = new MessagingResponse();
+//     $response->message(
+//         "I'm using the Twilio PHP library to respond to this SMS!"
+//     );
+
+//     echo $response;
+// }
+// function replyCall()
+// {
+
+//     // Set the content-type to XML to send back TwiML from the PHP Helper Library
+//     header("content-type: text/xml");
+
+//     // <Response>
+//     // <Say>Hello</Hello>
+//     // </Reponse>
+
+//     // echo $response;
+// }
+
+
+// function validatePhoneNumber($phone)
+// {
+//     try {
+//         $twilio = new Client(TWILIO_SID, TWILIO_AUTH_TOKEN);
+//         $phone_number = $twilio->lookups->v1->phoneNumbers($phone)
+//             ->fetch(array("countryCode" => "GH"));
+//         print($phone_number->phoneNumber);
+//         return $phone_number->phoneNumber;
+//     } catch (Exception $e) {
+//         echo "Error: " . $e->getMessage();
+//     }
+// }
 
 
 /**

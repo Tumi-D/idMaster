@@ -14,12 +14,11 @@ class  Login  extends PostController
     ];
     validate($rules, "json");
     $user = UserModel::where('phone', '=', $phonenumber)->first();
-    if (password_verify($password, $user->password) && $user) {
+    if ($user && password_verify($password, $user->password)) {
       $validuser = [
         "id" => $user->id,
         "firstname" => $user->firstname,
         "lastname" => $user->lastname,
-        "phone" => $user->phone
       ];
       $jwt = generateAPIToken($validuser);
       $data = [
@@ -34,12 +33,7 @@ class  Login  extends PostController
       ];
       echo json_encode($data);
     } else {
-      $error = [
-        "error" => [
-          "message" => "Login Failed"
-        ],
-        "software" => COMPANYNAME
-      ];
+      simplerror("Login Failed",401);
       echo json_encode($error);
     }
   }

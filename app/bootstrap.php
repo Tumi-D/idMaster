@@ -67,8 +67,17 @@ function pokemon($exception)
         'errormessage' => $exception->getMessage()
     ];
 
-    $errordisplaycontroller = new Controller();
-    $errordisplaycontroller->view("pages/errorpage", $errordata);
+    // $errordisplaycontroller = new Controller();
+    // $errordisplaycontroller->view("pages/errorpage", $errordata);
+    $errorinfo = array(
+        'error' => $errordata,
+        'code' => 500,
+        "company"=> COMPANYNAME
+    );
+    http_response_code(500);
+    header('Content-Type,application/json');
+    echo json_encode($errorinfo);
+    die;
 
     exit();
 }

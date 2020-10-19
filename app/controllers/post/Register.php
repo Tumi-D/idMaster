@@ -75,8 +75,8 @@ class  Register  extends PostController
         ];
         validate($rules, "json");
         $otp = OTPModel::getOTP($otp);
-        if (empty($otp)) {
-            simplerror('Invalid Otp');
+        if (empty($otp) || $otp == false) {
+            simplerror('Invalid Otp', 404);
         }
         $currenttime = Carbon::now();
         $expirytime = $otp->expires_at;
@@ -101,7 +101,7 @@ class  Register  extends PostController
             ];
             echo json_encode($data);
         } else {
-            simplerror('Expired Otp');
+            simplerror('Expired Otp', 400);
         }
     }
     public  function password()
@@ -131,7 +131,7 @@ class  Register  extends PostController
                 ];
                 echo json_encode($data);
             } else {
-                simplerror('Please reset password invalid operation');
+                simplerror('Please reset password invalid operation',422);
             }
         } else {
             $data = [
@@ -154,12 +154,15 @@ class  Register  extends PostController
             "phonenumber" => "required|numeric|min:10",
         ];
         validate($rules, "json");
-        $user  = UserModel::where("phone", $phonenumber)->first();
-        if (!empty($user->password)) {
-            simplerror("Please proceed to reset password your registeration is complete.");
-        } else {
-            dd("Send Otp");
-            // $this->sendOtp($user->id, $phonenumber);
+        try {
+            $user  = UserModel::where("phone", $phonenumber)->first();
+            if ($user) {
+                null !== $user->password  ? simplerror("Please proceed to reset password your registeration is complete.", 422) : $this->sendOtp($user->id, $phonenumber); 
+            } else {
+                simplerror("Account does not exist", 404);
+            }
+        } catch (\Throwable $th) {
+            simplerror($th->getMessage(), 500);
         }
     }
 }

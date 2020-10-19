@@ -10,16 +10,14 @@ class  Users  extends Controller
         $headers = apache_request_headers();
         $token = explode(" ", $headers["Authorization"]);
         try {
-            JWT::$leeway = 60; // $leeway in seconds
+            JWT::$leeway = 60*60; // $leeway in seconds
             $decoded = JWT::decode($token[1], SECRET_KEY, array('HS256'));
-            dd($decoded);
+            echo json_encode($decoded->data);
         } catch ( Firebase\JWT\ExpiredException  $th) {
-            // dd($th->getMessage());
-            simplerror($th->getMessage());
+            simplerror($th->getMessage(),401);
         }
-       
-    //    dd($decoded);
-
-
+        catch (Exception $th ){
+            simplerror($th->getMessage(),500);
+        }
     }
 }

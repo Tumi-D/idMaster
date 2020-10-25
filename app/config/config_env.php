@@ -12,7 +12,7 @@ define('JSVARS', serialize(array(
 )));
 
 if (!defined('SITENAME')) {
-    define('SITENAME', 'UNIVERSAL MONEY AGENCY PLATFROM');
+    define('SITENAME', 'IDMASTER');
 }
 
 define('COMPANYNAME', 'IDMEISTER');

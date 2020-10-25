@@ -20,7 +20,7 @@ class Tests extends PostController
     {
         extract($_FILES);
         $rules =[
-          'image'=>'file.*|size:400|mimes:csv,txt,xls,pdf|empty'
+          'image'=>'file|size:10000|mimes:csv,txt,xls,pdf|empty'
         ];
         validate($rules,'json');
         dd($_FILES);

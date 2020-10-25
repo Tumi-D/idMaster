@@ -236,3 +236,10 @@ function Salt()
 {
     return substr(strtr(base64_encode(hex2bin(randomToken(5))), '+', '.'), 0, 44);
 }
+
+function removeSymlink($path) {
+    if (PHP_SHLIB_SUFFIX==='dll') {
+        return rmdir($path);
+    }
+    return unlink($path);
+}

@@ -25,19 +25,19 @@ class  CountryFactory
       //    //Add the other record objects
       //    // $country->store();
       // }\
-      $roles = [
+      $countries = [
          [
-             'name' => 'Ghana',
-             'code' => 233,
-             'key' => 'GHS',
+             'name' => 'TOGO',
+             'code' => 228,
+             'key' => 'XOF',
          ],
          [
-            'name' => 'Nigeria',
-            'code' => 234,
-            'key' => 'NGN',
+            'name' => 'Burkina_Faso',
+            'code' => 226,
+            'key' => 'CFA',
          ]
      ];
-     foreach($roles as $key=>$value){
+     foreach($countries as $key=>$value){
         CountryModel::create($value);
         }
    }

@@ -249,11 +249,11 @@ function validateFiles($rules = [],  $errors = array())
         if (in_array('file', $array)) {
             foreach ($array as $int => $value) {
                 if (preg_match('/mimes/', $value) && !empty($_FILES[$key])) {
-                     $mimes = explode(':', $value);
-                     $filemimes = explode(',',$mimes[1]);
-                     $info = new SplFileInfo($_FILES[$key]['name']);
-                     $fileextension= $info->getExtension();
-                     if(!in_array($fileextension,$filemimes)){
+                    $mimes = explode(':', $value);
+                    $filemimes = explode(',', $mimes[1]);
+                    $info = new SplFileInfo($_FILES[$key]['name']);
+                    $fileextension = $info->getExtension();
+                    if (!in_array($fileextension, $filemimes)) {
                         $message = array($key => array("Sorry, only $mimes[1] files are allowed"));
                         array_push($errors, $message);
                     }
@@ -261,29 +261,39 @@ function validateFiles($rules = [],  $errors = array())
                 if (preg_match('/size/', $value) && !empty($_FILES[$key])) {
                     $size = explode(':', $value);
                     $filesize = (int) $size[1];
-                    if($filesize < $_FILES[$key]['size']){
-                        $message = array($key => array("Sorry, your file is too large"));
+                    if ($filesize < $_FILES[$key]['size']) {
+                        $message = array($key => array("Sorry, your file is too large uploaded {$_FILES[$key]['size']}"));
                         array_push($errors, $message);
                         // break;
                     }
                 }
             }
-                if (in_array('empty', $array) && empty($_FILES)){
-                    $message = array($key => array("$key file is required"));
-                    array_push($errors, $message);
-                }
-        }
-        if(in_array('file.*', $array)) {
-            if (in_array('empty', $array)){
-                foreach ($_FILES as $iter => $file) {
-                    if (empty($file)) {
-                        $message = array($key => array("$key file at index[$iter] is empty"));
-                        array_push($errors, $message);
-                    }
-                }
-               
+            if (in_array('empty', $array) && empty($_FILES)) {
+                $message = array($key => array("$key file is required"));
+                array_push($errors, $message);
             }
         }
+        // if(in_array('file.*', $array)) {
+        //     if (in_array('empty', $array)){
+        //         foreach ($array as $int => $value) {
+        //             foreach ($_FILES as $name => $file) {
+        //                 if (empty($file)) {
+        //                     $message = array($key => array("$key file at index[$name] is empty"));
+        //                     array_push($errors, $message);
+        //                 }
+        //                 if (preg_match('/size/', $value) && !empty($file)) {
+        //                     $size = explode(':', $value);
+        //                     $filesize = (int) $size[1];
+        //                     if ($filesize < $file['size']) {
+        //                         $message = array($key => array("Sorry, $key file at index[$name]  is too large"));
+        //                         array_push($errors, $message);
+        //                     }
+        //                 }
+        //             }
+        //         }
+               
+        //     }
+        // }
     }
     // dd($errors);
     return $errors;

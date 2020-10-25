@@ -12,8 +12,12 @@ class Tests extends Controller
 
     public function index()
     {
+        $user_ip = getClientIP();
+        // echo json_encode($user_ip);
 
-        phpinfo();
+        dd($user_ip) ; // Output IP address [Ex: 177.87.193.134]
+        
+        // phpinfo();
     }
     public function createmerchant()
     {
@@ -111,6 +115,7 @@ class Tests extends Controller
         $row = new TestData($id);
         $row->deleteFromDB();
     }
+
 
 
     public function fakeOtp()

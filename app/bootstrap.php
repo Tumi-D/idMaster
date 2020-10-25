@@ -62,23 +62,27 @@ $connectedDb = new Database();
  */
 function pokemon($exception)
 {
-    $errordata = [
-        'exceptiondata' => $exception,
-        'errormessage' => $exception->getMessage()
-    ];
+    // $errordata = [
+    //     'exceptiondata' => $exception,
+    //     'errormessage' => $exception->getMessage()
+    // ];
+    // dd($exception);
 
     // $errordisplaycontroller = new Controller();
     // $errordisplaycontroller->view("pages/errorpage", $errordata);
     $errorinfo = array(
-        'error' => $errordata,
+        'error' => [
+            "message"=> $exception->getMessage(),
+            "line" => "The exception was created on line: " . $exception->getLine(),
+            "file" => $exception->getFile()
+        ],
         'code' => 500,
-        "company"=> COMPANYNAME
+        "software"=> COMPANYNAME
     );
     http_response_code(500);
     header('Content-Type,application/json');
     echo json_encode($errorinfo);
     die;
-
     exit();
 }
 

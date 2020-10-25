@@ -1,6 +1,6 @@
 <?php
 
-
+use Faker\Provider\File;
 
 /**
  *validate() checks various validation rules and returns specific errors for said rules
@@ -37,13 +37,14 @@ function validate($rules = [], $page = '', $exceptions = [])
         $errors = checkMinLength($rules,  $errors);
         $errors = checkMaxLength($rules,  $errors);
         $errors = checkIFNumeric($rules, $errors);
+        $errors = validateFiles($rules, $errors);
         $errors = checkForUrl($rules, $errors);
         $errors = sanitizeErrors($errors);
         // return $errors;
         $errorinfo = array(
             'error' => $errors,
             'code' => 422,
-            "company"=> COMPANYNAME
+            "software"=> COMPANYNAME
         );
         //Update will implement later
         if (count((array) $errors) && $page != '' && $page != "json") {
@@ -78,6 +79,9 @@ function validate($rules = [], $page = '', $exceptions = [])
 //     }
 //     dd('done');
 // }
+
+
+
 /**
  *checkPhoneValidity() checks if parameter is required
  * @param  array rules
@@ -129,7 +133,7 @@ function checkIsRequired($rules = [],  $errors = array())
     foreach ($rules as $key => $value) {
         $array = explode('|', $value);
         if (testinput(isset($_POST[$key]) && empty($_POST[$key]) && in_array('required', $array))) {
-            $message = array($key => array($key . ' field is required'));
+            $message = array($key => array($key . " field is required"));
             array_push($errors, $message);
         }
     }
@@ -154,7 +158,7 @@ function checkMinLength($rules = [],  $errors = array())
                 $value = (string) $value;
                 $maxvalue = (int) $maxvalue;
                 $valuelength = strlen($value);
-                $message = array($key => array($key . " must be > or = {$maxvalue}"));
+                $message = array($key => array($key . " must be at least {$maxvalue}"));
                 $maxvalue > $valuelength ? array_push($errors, $message) : '';
             }
         }
@@ -180,7 +184,7 @@ function checkMaxLength($rules = [],  $errors = array())
                 $value = (string) $value;
                 $maxvalue = (int) $maxvalue;
                 $valuelength = strlen($value);
-                $message = array($key => array($key . ' exceeded maximum length must be < or = ' . $maxvalue . " value entered is " . $valuelength));
+                $message = array($key => array($key .  " must be at most {$maxvalue}"));
                 $maxvalue < $valuelength ? array_push($errors, $message) : '';
             }
         }
@@ -226,8 +230,62 @@ function checkForString($rules = [],  $errors = array())
             // dd($_POST[$key] . "  Is not a string see value is" . $key);
             $message = array($key => array($key . ' Invalid string input please enter string'));
             array_push($errors, $message);
+
         }
     }
+    return $errors;
+}
+
+/**
+ *Validate Files
+ * @param  array rules
+ * @param  array errors
+ * @return array errors
+ */
+function validateFiles($rules = [],  $errors = array())
+{
+    foreach ($rules as $key => $value) {
+        $array = explode('|', $value);
+        if (in_array('file', $array)) {
+            foreach ($array as $int => $value) {
+                if (preg_match('/mimes/', $value) && !empty($_FILES[$key])) {
+                     $mimes = explode(':', $value);
+                     $filemimes = explode(',',$mimes[1]);
+                     $info = new SplFileInfo($_FILES[$key]['name']);
+                     $fileextension= $info->getExtension();
+                     if(!in_array($fileextension,$filemimes)){
+                        $message = array($key => array("Sorry, only $mimes[1] files are allowed"));
+                        array_push($errors, $message);
+                    }
+                }
+                if (preg_match('/size/', $value) && !empty($_FILES[$key])) {
+                    $size = explode(':', $value);
+                    $filesize = (int) $size[1];
+                    if($filesize < $_FILES[$key]['size']){
+                        $message = array($key => array("Sorry, your file is too large"));
+                        array_push($errors, $message);
+                        // break;
+                    }
+                }
+            }
+                if (in_array('empty', $array) && empty($_FILES)){
+                    $message = array($key => array("$key file is required"));
+                    array_push($errors, $message);
+                }
+        }
+        if(in_array('file.*', $array)) {
+            if (in_array('empty', $array)){
+                foreach ($_FILES as $iter => $file) {
+                    if (empty($file)) {
+                        $message = array($key => array("$key file at index[$iter] is empty"));
+                        array_push($errors, $message);
+                    }
+                }
+               
+            }
+        }
+    }
+    // dd($errors);
     return $errors;
 }
 

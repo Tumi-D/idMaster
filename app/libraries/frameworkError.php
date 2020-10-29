@@ -7,7 +7,7 @@
  */
 
 class frameworkError extends Exception {
-    public function __construct($message = "Something bad happened, sorry about that.", $code = 0, Throwable $previous = null) {
+    public function __construct($message = "Something went wrong, sorry about that.", $code = 0, Throwable $previous = null) {
         parent::__construct($message, $code, $previous);
         
         $this->message ="Marketplace encountered an error in line $this->line of $this->file: ".$this->message;

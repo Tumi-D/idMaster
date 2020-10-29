@@ -261,8 +261,9 @@ function validateFiles($rules = [],  $errors = array())
                 if (preg_match('/size/', $value) && !empty($_FILES[$key])) {
                     $size = explode(':', $value);
                     $filesize = (int) $size[1];
+                    $filesizeInMb = formatSizeUnits($_FILES[$key]['size']);
                     if ($filesize < $_FILES[$key]['size']) {
-                        $message = array($key => array("Sorry, your file is too large uploaded {$_FILES[$key]['size']}"));
+                        $message = array($key => array("Sorry, your file is too large uploaded {$filesizeInMb}"));
                         array_push($errors, $message);
                         // break;
                     }
